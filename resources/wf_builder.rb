@@ -122,22 +122,31 @@ action :create do
     chef_file "#{workspace}/#{dir}/#{chef_user}.pem" do
       source new_resource.chef_user_pem
       mode '0600'
-      user 'root'
-      group 'root'
+      user 'dbuild'
+      group 'dbuild'
     end
   end
 
-  %w(etc/delivery.rb .chef/knife.rb).each do |dir|
-    file "#{workspace}/#{dir}" do
-      content ensurekv(::File.read(new_resource.chef_config_path),
-                       node_name: new_resource.chef_user,
-                       log_location: :STDOUT,
-                       client_key: "#{workspace}/#{dir}/#{new_resource.chef_user}.pem",
-                       trusted_certs_dir: '/etc/chef/trusted_certs')
-      mode '0644'
-      owner 'dbuild'
-      group 'dbuild'
-    end
+  file "#{workspace}/etc/delivery.rb" do
+    content ensurekv(::File.read(new_resource.chef_config_path),
+                     node_name: new_resource.chef_user,
+                     log_location: :STDOUT,
+                     client_key: "#{workspace}/etc/#{new_resource.chef_user}.pem",
+                     trusted_certs_dir: '/etc/chef/trusted_certs')
+    mode '0644'
+    owner 'dbuild'
+    group 'dbuild'
+  end
+
+  file "#{workspace}/.chef/knife.rb" do
+    content ensurekv(::File.read(new_resource.chef_config_path),
+                     node_name: new_resource.chef_user,
+                     log_location: :STDOUT,
+                     client_key: "#{workspace}/.chef/#{new_resource.chef_user}.pem",
+                     trusted_certs_dir: '/etc/chef/trusted_certs')
+    mode '0644'
+    owner 'dbuild'
+    group 'dbuild'
   end
 
   remote_file "#{workspace}/bin/git_ssh" do
