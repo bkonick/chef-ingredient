@@ -1,6 +1,6 @@
 #
 # Author:: Joshua Timberman <joshua@chef.io>
-# Copyright (c) 2014-2016, Chef Software, Inc. <legal@chef.io>
+# Copyright:: 2014-2017, Chef Software, Inc. <legal@chef.io>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -87,7 +87,7 @@ module ChefIngredientCookbook
             'mixlib-install'
           )
         else
-          install_gem_from_rubygems('mixlib-install', '~> 3.2')
+          install_gem_from_rubygems('mixlib-install', '~> 3.3')
         end
 
         require 'mixlib/install'
@@ -270,10 +270,15 @@ module ChefIngredientCookbook
       @installer ||= begin
         ensure_mixlib_install_gem_installed!
 
+        resolve_platform_properties!
+
         options = {
           product_name: new_resource.product_name,
           channel: new_resource.channel,
           product_version: new_resource.version,
+          platform: new_resource.platform,
+          platform_version: new_resource.platform_version,
+          architecture: Mixlib::Install::Util.normalize_architecture(new_resource.architecture),
         }.tap do |opt|
           if new_resource.platform_version_compatibility_mode
             opt[:platform_version_compatibility_mode] = new_resource.platform_version_compatibility_mode
@@ -281,22 +286,31 @@ module ChefIngredientCookbook
           opt[:shell_type] = :ps1 if windows?
         end
 
-        platform_details = Mixlib::Install.detect_platform
-
-        # Some auto-detected architectures needs to be normalized before being queried
-        platform_details[:architecture] = Mixlib::Install::Util.normalize_architecture(platform_details[:architecture])
-
-        # Set any raw overrides
-        platform_details.tap do |opt|
-          opt[:platform] = new_resource.platform if new_resource.platform
-          opt[:platform_version] = new_resource.platform_version if new_resource.platform_version
-          opt[:architecture] = new_resource.architecture if new_resource.architecture
-        end
-
-        options.merge!(platform_details)
-
         Mixlib::Install.new(options)
       end
+    end
+
+    #
+    # Defaults platform, platform_version, and architecture
+    # properties when not set by recipe
+    #
+    def resolve_platform_properties!
+      # Auto detect platform
+      detected_platform = Mixlib::Install.detect_platform
+
+      if new_resource.platform.nil?
+        new_resource.platform(detected_platform[:platform])
+      end
+
+      if new_resource.platform_version.nil?
+        new_resource.platform_version(detected_platform[:platform_version])
+      end
+
+      if new_resource.architecture.nil?
+        new_resource.architecture(detected_platform[:architecture])
+      end
+
+      true
     end
 
     def prefix

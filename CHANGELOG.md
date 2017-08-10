@@ -1,6 +1,32 @@
 # chef-ingredient Cookbook CHANGELOG
 This file is used to list changes made in each version of the chef-ingredient cookbook.
 
+## 2.1.5 (2017-07-31)
+
+- Update the client resource to properly source the client.rb template
+- Add a log warning if the default recipe is included on a run_list
+- Added supported platforms to the metadata for Supermarket
+
+## 2.1.4 (2017-07-27)
+
+- Use default package provider on RHEL instead of RPM; fixes #181
+- Resolve CHEF-19 deprecation warnings (#184)
+
+## 2.1.3 (2017-06-29)
+- Pin mixlib-install `~> 3.3`
+
+## 2.1.2 (2017-06-03)
+- Fix normalization of auto-detected and set architectures
+
+## 2.1.1 (2017-05-22)
+- Revert platform remapping and platform version truncation changes.
+- `chef_ingredient` properties `platform`, `platform_version`, `architecture` default to auto-detected value when not set.
+
+## 2.1.0 (2017-05-18)
+- Add initial chef infrastructure resources and contributors from chef_stack project
+- Add Ohai attributes as defaults to `chef_ingredient` resource properties `platform`, `platform_version`, and `architecture`
+- Add platform remapping and platform version truncation fixes to align with Chef Software Inc's software distribution systems
+
 ## 2.0.5 (2017-04-24)
 
 - [#155](https://github.com/chef-cookbooks/chef-ingredient/issues/155) Workaround chef_ingredient timeout property on Windows (windows_package timeout property currently broken in Chef)

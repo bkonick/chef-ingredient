@@ -2,7 +2,7 @@
 # Author:: Serdar Sutay <serdar@chef.io>
 # Author:: Patrick Wright <patrick@chef.io>
 #
-# Copyright (c) 2016, Chef Software, Inc. <legal@chef.io>
+# Copyright:: 2016-2017, Chef Software, Inc. <legal@chef.io>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -60,7 +60,6 @@ module ChefIngredient
         timeout new_resource.timeout if new_resource.timeout
         provider value_for_platform_family(
           'debian'  => Chef::Provider::Package::Dpkg,
-          'rhel'    => Chef::Provider::Package::Rpm,
           'suse'    => Chef::Provider::Package::Rpm,
           'windows' => Chef::Provider::Package::Windows
         )
