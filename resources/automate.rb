@@ -59,6 +59,9 @@ action :create do
     platform_version new_resource.platform_version if new_resource.platform_version
   end
 
+  os_user = new_resource.config[/user\['username'\] ?= ?['"](?<username>.*)['"]/, 'username'] || 'delivery'
+  os_group = new_resource.config[/user\['group'\] ?= ?['"](?<group>.*)['"]/, 'group'] || 'delivery'
+
   %w(/etc/delivery /etc/chef /var/opt/delivery/license).each do |dir|
     directory dir do
       recursive true
@@ -67,8 +70,8 @@ action :create do
 
   chef_file '/var/opt/delivery/license/delivery.license' do
     source new_resource.license
-    user 'delivery'
-    group 'root'
+    user os_user
+    group os_group
     mode '0644'
   end
 
